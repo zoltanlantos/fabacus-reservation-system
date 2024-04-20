@@ -1,0 +1,22 @@
+{
+  "name": "fabacus-reservation-system",
+  "version": "1.0.0",
+  "description": "A service that supports a busy online reservation system using NodeJs, Redis and Docker",
+  "main": "src/index.ts",
+  "author": "Zoltán Lantos<zoltan.lantos@live.com>",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts",
+    "lint": "biome lint ./",
+    "format": "biome format --write ./",
+    "check": "biome check"
+  },
+  "dependencies": {
+    "elysia": "^1.0.13"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.7.0",
+    "bun-types": "^1.1.4"
+  }
+}
