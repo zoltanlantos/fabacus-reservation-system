@@ -4,7 +4,7 @@ import { treaty } from '@elysiajs/eden';
 import { Elysia } from 'elysia';
 import { handleListSeats } from './listSeats';
 
-const app = new Elysia().use( handleListSeats);
+const app = new Elysia().use(handleListSeats);
 const api = treaty(app);
 
 describe('handle list seats', () => {
