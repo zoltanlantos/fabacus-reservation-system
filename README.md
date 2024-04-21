@@ -24,10 +24,12 @@ Open http://localhost:9000/swagger with your browser to see the the API document
 To start Redis run:
 
 ```bash
-docker-compose up redis redis-insight
+bun start:redis
 ```
 
 Visit http://localhost:5540/ for Redis Insight
+
+Add Redis Database with Host: `cache` and Port: `6379`
 
 ## Production
 
@@ -38,6 +40,7 @@ docker-compose up
 ```
 
 Open http://localhost:9000/swagger with your browser to see the the API documentation.
+
 Visit http://localhost:5540/ for Redis Insight
 
 # R&D
@@ -83,9 +86,10 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [] docker compose
   - [] commitizen
   - [] husky ?
-- [] add Redis
+- [x] add Redis
+  - [] secure instance
 - [] add Handlers
-  - [] PUT /events
+  - [x] PUT /events
   - [] GET /events/:id/seats
   - [] POST /events/:id/hold
     - [] limit the number of seats a given user can hold in one event.

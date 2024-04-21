@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   redis:
     image: redis:7.2.4 #redis:7.2.4-alpine
@@ -6,13 +7,22 @@ services:
     expose:
       - 6379
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    healthcheck:
+      test: redis-cli ping
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
   redis-insight:
     image: redis/redisinsight:2.48.0
     ports:
-      - "5540:5540"
+      - '5540:5540'
+    links:
+      - redis
     # volumes:
     #   - redis-insight:/data
+
   # app:
   #   build: ./
   #   volumes:
@@ -25,5 +35,5 @@ services:
   #     - REDIS_URL=redis://cache
   #     - NODE_ENV=development
   #     - PORT=9000
-  #   command:
+  #     command:
   #     sh -c 'bun install && bun start'

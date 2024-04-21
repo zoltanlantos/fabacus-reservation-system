@@ -1,15 +1,18 @@
 import { Elysia } from 'elysia';
-import { cors } from '@elysiajs/cors';
-import { appTitle, appVersion } from './config';
-import swagger from './swagger';
-import { addRouteV1 } from './v1';
+import { appTitle, appVersion } from '@/config';
+import cors from '@/v1/plugins/cors';
+import jwt from '@/v1/plugins/jwt';
+import swagger from '@/v1/plugins/swagger';
+import { addRouteV1 } from '@/v1';
 
 const app = new Elysia();
 
 app
   .use(swagger())
   .use(cors())
-  .get('/', () => `${appTitle} v${appVersion} is running`)
+  .use(jwt())
+  //* note: functional requirements doesn't specify authentication, so I added a simple jwt example
+  .get('/', ({jwt}) => `${appTitle} v${appVersion} is running, jwt: ${jwt.sign({name: 'John Doe'})}`)
   .all('/v0', ({ error }) => error(410, 'Gone'));
 
 //* note: each version should be added as a separate module

@@ -1,0 +1,39 @@
+// Bun Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`eventsCreate should return error on invalid payload 1`] = `[n: {
+  "type": "validation",
+  "on": "body",
+  "property": "/name",
+  "message": "Expected string length greater or equal to 3",
+  "expected": {
+    "name": "   ",
+    "seats": 10
+  },
+  "found": {
+    "name": "no",
+    "seats": 1
+  },
+  "errors": [
+    {
+      "type": 52,
+      "schema": {
+        "minLength": 3,
+        "type": "string"
+      },
+      "path": "/name",
+      "value": "no",
+      "message": "Expected string length greater or equal to 3"
+    },
+    {
+      "type": 39,
+      "schema": {
+        "minimum": 10,
+        "maximum": 1000,
+        "type": "number"
+      },
+      "path": "/seats",
+      "value": 1,
+      "message": "Expected number to be greater or equal to 10"
+    }
+  ]
+}]`;
