@@ -7,18 +7,38 @@ A service that supports a busy online reservation system using NodeJs, Redis and
 To install all dependencies run:
 
 ```bash
+curl -fsSL https://bun.sh/install | bash
 bun install
 ```
 
 ## Development
 
-To start the development server run:
+To start the development server locally run:
 
 ```bash
 bun dev
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+Open http://localhost:9000/swagger with your browser to see the the API documentation.
+
+To start Redis run:
+
+```bash
+docker-compose up redis redis-insight
+```
+
+Visit http://localhost:5540/ for Redis Insight
+
+## Production
+
+To start the production version run:
+
+```bash
+docker-compose up
+```
+
+Open http://localhost:9000/swagger with your browser to see the the API documentation.
+Visit http://localhost:5540/ for Redis Insight
 
 # R&D
 
@@ -61,7 +81,9 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] biome
   - [x] editorconfig
   - [] docker compose
-- [] add Redis Docker
+  - [] commitizen
+  - [] husky ?
+- [] add Redis
 - [] add Handlers
   - [] PUT /events
   - [] GET /events/:id/seats
@@ -69,5 +91,8 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
     - [] limit the number of seats a given user can hold in one event.
   - [] POST /events/:id/reserve
   - [] POST /events/:id/hold/refresh ?
+- [] require auth header
 - [x] handle CORS
 - [x] add Swagger
+- [] enable TLS
+- [] switch both bun and redis containers to alpine

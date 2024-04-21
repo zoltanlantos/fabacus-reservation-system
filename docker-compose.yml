@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7.2.4 #redis:7.2.4-alpine
+    container_name: cache
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+  redis-insight:
+    image: redis/redisinsight:2.48.0
+    ports:
+      - "5540:5540"
+    # volumes:
+    #   - redis-insight:/data
+  # app:
+  #   build: ./
+  #   volumes:
+  #     - ./:/var/www/app
+  #   links:
+  #     - redis
+  #   ports:
+  #     - 9000:9000
+  #   environment:
+  #     - REDIS_URL=redis://cache
+  #     - NODE_ENV=development
+  #     - PORT=9000
+  #   command:
+  #     sh -c 'bun install && bun start'
