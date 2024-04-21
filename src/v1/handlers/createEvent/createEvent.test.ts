@@ -1,12 +1,12 @@
 import { describe, expect, it, spyOn } from 'bun:test';
 import { Elysia } from 'elysia';
 import { treaty } from '@elysiajs/eden';
-import { eventsCreateSchema, handleEventsCreate } from './createEvent';
+import { createEventSchema, handleCreateEvent } from './createEvent';
 
-const app = new Elysia().put('/create', handleEventsCreate, eventsCreateSchema);
+const app = new Elysia().put('/create', handleCreateEvent, createEventSchema);
 const api = treaty(app);
 
-describe('eventsCreate', () => {
+describe('handle create event', () => {
   it('should create an event', async () => {
     // todo: mock and spyOn redisSet
     const { data, response, error } = await api.create.put({ name: 'event-name', seats: 10 });

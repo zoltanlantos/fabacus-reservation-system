@@ -1,6 +1,6 @@
 // Bun Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`eventsCreate should return error on invalid payload 1`] = `[n: {
+exports[`handle create event should return error on invalid payload 1`] = `[n: {
   "type": "validation",
   "on": "body",
   "property": "/name",
