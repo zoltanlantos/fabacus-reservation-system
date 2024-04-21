@@ -1,5 +1,5 @@
 import type Elysia from 'elysia';
-import { eventsCreateSchema, handleEventsCreate } from './handlers/eventsCreate';
+import { eventsCreateSchema, handleEventsCreate } from './handlers/createEvent';
 
 export const addRoutesV1 = (app: Elysia) =>
   app
