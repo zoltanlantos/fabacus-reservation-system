@@ -15,3 +15,24 @@ export const redisSet = async (key: string, data: unknown, expires?: number) => 
   await redis.set(key, JSON.stringify(cleanedData));
   await redis.quit();
 };
+
+export const redisGet = async (key: string) => {
+  const redis = await redisConnect();
+  const data = await redis.get(key);
+  await redis.quit();
+  return data;
+};
+
+export const redisSetAdd = async (key: string, data: unknown) => {
+  const redis = await redisConnect();
+  const cleanedData = removeEmptyProperties(data as Record<string, unknown>);
+  await redis.sAdd(key, JSON.stringify(cleanedData));
+  await redis.quit();
+};
+
+export const redisSetMembers = async (key: string) => {
+  const redis = await redisConnect();
+  const data = await redis.sMembers(key);
+  await redis.quit();
+  return data.map((item) => JSON.parse(item));
+};

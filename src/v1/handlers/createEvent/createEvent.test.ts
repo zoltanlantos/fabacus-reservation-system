@@ -1,6 +1,6 @@
 import { describe, expect, it, spyOn } from 'bun:test';
-import { Elysia } from 'elysia';
 import { treaty } from '@elysiajs/eden';
+import { Elysia } from 'elysia';
 import { createEventSchema, handleCreateEvent } from './createEvent';
 
 const app = new Elysia().put('/create', handleCreateEvent, createEventSchema);

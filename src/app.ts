@@ -1,19 +1,20 @@
-import { Elysia, t } from 'elysia';
 import { appTitle, appVersion } from '@/config';
 import cors from '@/v1/plugins/cors';
 import jwt from '@/v1/plugins/jwt';
 import swagger from '@/v1/plugins/swagger';
 import { addRoutesV1 } from '@/v1/routes';
+import { Elysia, t } from 'elysia';
 
 const app = new Elysia();
 
 app
+  // todo: .use(logger())
   .use(swagger())
   .use(cors())
   .use(jwt())
-  .derive(async (app) => {
-    const jwt = app.headers.authorization?.replace(/^Bearer /, '');
-    return { user: jwt && (await app.jwt.verify(jwt)) };
+  .derive(async ({ headers, jwt }) => {
+    const token = headers.authorization?.replace(/^Bearer /, '');
+    return { user: token && (await jwt.verify(token)) };
   })
   .get('/', ({ set }) => {
     set.redirect = '/v1/swagger';

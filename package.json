@@ -12,9 +12,9 @@
     "start:redis": "docker-compose up redis redis-insight",
     "build": "bun build src/app.ts --outfile dist/app.js",
     "test": "bun test",
-    "format": "biome format --write ./",
-    "lint": "biome lint --apply ./",
-    "check": "biome check"
+    "format": "biome format --write .",
+    "lint": "biome lint --apply .",
+    "check": "biome check --apply ."
   },
   "dependencies": {
     "@elysiajs/cors": "^1.0.2",
