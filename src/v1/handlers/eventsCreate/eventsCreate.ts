@@ -1,4 +1,3 @@
-import type Elysia from 'elysia';
 import { t } from 'elysia';
 import { nanoid } from 'nanoid';
 import type { PutHandler } from '@/v1/helpers/misc';

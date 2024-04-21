@@ -1,7 +1,7 @@
 import type Elysia from 'elysia';
 import { eventsCreateSchema, handleEventsCreate } from './handlers/eventsCreate';
 
-export const addRouteV1 = (app: Elysia) =>
+export const addRoutesV1 = (app: Elysia) =>
   app
     //* v1
     .put('/v1/events', handleEventsCreate, eventsCreateSchema)
