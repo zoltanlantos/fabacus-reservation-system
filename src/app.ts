@@ -1,9 +1,9 @@
 import { appTitle, appVersion } from '@/config';
 import cors from '@/v1/plugins/cors';
-import jwt from '@/v1/plugins/jwt';
 import swagger from '@/v1/plugins/swagger';
+import { user } from '@/v1/plugins/user';
 import { addRoutesV1 } from '@/v1/routes';
-import { Elysia, t } from 'elysia';
+import { Elysia } from 'elysia';
 
 const app = new Elysia();
 
@@ -11,19 +11,10 @@ app
   // todo: .use(logger())
   .use(swagger())
   .use(cors())
-  .use(jwt())
-  .derive(async ({ headers, jwt }) => {
-    const token = headers.authorization?.replace(/^Bearer /, '');
-    return { user: token && (await jwt.verify(token)) };
-  })
+  .use(user())
   .get('/', ({ set }) => {
-    set.redirect = '/v1/swagger';
+    set.redirect = '/swagger';
   })
-  //* note: functional requirements doesn't specify authentication, so I added a simple jwt sign endpoint
-  .get('/jwt', async ({ jwt, query }) => ({ Authorize: `Bearer ${await jwt.sign({ ...query })}` }), {
-    query: t.Object({ name: t.String({ minLength: 1 }), id: t.String({ minLength: 1 }) }),
-  })
-  .get('/user', ({ user }) => user)
   .get('/health', () => ({ status: 'ok' }))
   //* note: example of how to deprecate a version
   .all('/v0', ({ error }) => error(410, 'Gone'));

@@ -90,14 +90,15 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [] husky ?
 - [x] add Redis
   - [] secure instance
-- [] add Handlers
+- [x] add Handlers
   - [x] PUT /events
-  - [] GET /events/:id/seats
-  - [] POST /events/:id/hold
-    - [] limit the number of seats a given user can hold in one event.
-  - [] POST /events/:id/reserve
-  - [] POST /events/:id/hold/refresh ?
-- [] require auth header
+  - [x] GET /events/:eventId/seats
+  - [x] PATCH /events/:eventId/seats/:seatId
+    - [x] hold
+      - [x] refresh hold
+      - [] limit the number of seats a given user can hold in one event.
+    - [x] reserve
+- [x] require auth header
 - [x] handle CORS
 - [x] add Swagger
 - [] enable TLS

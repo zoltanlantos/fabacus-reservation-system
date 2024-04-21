@@ -1,27 +1,33 @@
-import { redisSet, redisSetAdd } from '@/v1/helpers/redis';
+import { redisConnect } from '@/v1/helpers/redis';
 import { Elysia, t } from 'elysia';
 import { nanoid } from 'nanoid';
 
 export const handleCreateEvent = new Elysia().put(
   '/v1/events',
   async ({ error, body }) => {
-    const id = nanoid();
+    const eventId = nanoid();
 
     try {
-      await redisSet(`event:${id}`, body);
-      const seats = Array.from({ length: body.seats }, (_, i) => ({
-        id: nanoid(),
-        name: `Seat #${i + 1}`,
-        status: 'free',
-      }));
-      for (const seat of seats) {
-        redisSetAdd(`event:${id}:seats`, seat);
-      }
+      const redis = await redisConnect();
+      const tr = redis.multi();
+      tr.set(`event:${eventId}`, JSON.stringify({ ...body, id: eventId }));
 
-      return { id };
+      for (const seatIdx of Array.from({ length: body.seats }).keys()) {
+        const seatId = nanoid();
+        const seatKey = `seat:${seatId}`;
+        tr.sAdd(`event:${eventId}:seats`, seatKey);
+        tr.hSet(seatKey, 'id', seatId);
+        tr.hSet(seatKey, 'name', `Seat #${seatIdx + 1}`);
+        tr.hSet(seatKey, 'status', 'free');
+        tr.sAdd(`event:${eventId}:seats:free`, seatKey);
+      }
+      await tr.exec();
+      await redis.quit();
+
+      return { id: eventId };
     } catch (e) {
       console.error(e);
-      return error(500, { error: 'Redis set error', message: e });
+      return error(500, { error: 'Create Event error', message: e });
     }
   },
   {

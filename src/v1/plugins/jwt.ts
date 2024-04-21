@@ -1,8 +1,8 @@
+import { jwtSecret } from '@/config';
 import { jwt } from '@elysiajs/jwt';
 
-export default () =>
-  jwt({
-    name: 'jwt',
-    // todo: replace with a real secret from env variables
-    secret: 'Mollit aliqua mollit non aute.',
-  });
+export default () => {
+  if (!jwtSecret) throw new Error('JWT secret is not defined');
+
+  return jwt({ name: 'jwt', secret: jwtSecret });
+};
