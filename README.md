@@ -83,7 +83,9 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] bun
   - [x] biome
   - [x] editorconfig
-  - [] docker compose
+  - [x] docker compose
+    - [] add app service
+    - [] add load balancer service
   - [] commitizen
   - [] husky ?
 - [x] add Redis
