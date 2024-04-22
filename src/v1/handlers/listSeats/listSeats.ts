@@ -22,5 +22,9 @@ export const handleListSeats = new Elysia().get(
     params: t.Object({
       eventId: t.String({ minLength: nanoIdLength }),
     }),
+    detail: {
+      description: 'List all free seats for an event.',
+      tags: ['events'],
+    },
   },
 );

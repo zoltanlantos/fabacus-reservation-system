@@ -12,10 +12,14 @@ app
   .use(swagger())
   .use(cors())
   .use(user())
-  .get('/', ({ set }) => {
-    set.redirect = '/swagger';
-  })
-  .get('/health', () => ({ status: 'ok' }))
+  .get(
+    '/',
+    ({ set }) => {
+      set.redirect = '/swagger';
+    },
+    { detail: { description: 'Redirect to Swagger UI', tags: ['misc'] } },
+  )
+  .get('/health', () => ({ status: 'ok' }), { detail: { description: 'Health check endpoint.', tags: ['misc'] } })
   //* note: example of how to deprecate a version
   .all('/v0', ({ error }) => error(410, 'Gone'));
 

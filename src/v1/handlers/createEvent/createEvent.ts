@@ -32,12 +32,21 @@ export const handleCreateEvent = new Elysia().put(
   },
   {
     //* note: functional requirements only specify the seats range, I added the other fields for completeness
-    body: t.Object({
-      name: t.String({ minLength: 3 }),
-      description: t.Optional(t.String()),
-      date: t.Optional(t.String()),
-      location: t.Optional(t.String()),
-      seats: t.Number({ minimum: 10, maximum: 1000 }),
-    }),
+    body: t.Object(
+      {
+        name: t.String({ minLength: 3 }),
+        description: t.Optional(t.String()),
+        date: t.Optional(t.String()),
+        location: t.Optional(t.String()),
+        seats: t.Number({ minimum: 10, maximum: 1000 }),
+      },
+      {
+        description: 'Create event data payload',
+      },
+    ),
+    detail: {
+      description: 'Create an event with seats between 10 and 1000 (inclusive)',
+      tags: ['events'],
+    },
   },
 );

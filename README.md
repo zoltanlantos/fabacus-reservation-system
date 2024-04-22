@@ -79,6 +79,7 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 
 # TODO
 
+- [] design documentation
 - [x] set up boilerplate
   - [x] bun
   - [x] biome
@@ -87,7 +88,8 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
     - [] add app service
     - [] add load balancer service
   - [] commitizen
-  - [] husky ?
+  - [] husky
+  - [] github actions
 - [x] add Redis
   - [] secure instance
 - [x] add Handlers
@@ -102,4 +104,4 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 - [x] handle CORS
 - [x] add Swagger
 - [] enable TLS
-- [] switch both bun and redis containers to alpine
+- [] switch containers to alpine
