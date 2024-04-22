@@ -11,8 +11,8 @@ const detail = {
 };
 
 const body = t.Object(
-  //* note: functional requirements only specify the seats range,
-  //* The other meta fields are added for completeness
+  // Design note: functional requirements only specify the seats range,
+  // added the other meta fields for completeness.
   {
     name: t.String({ minLength: 3 }),
     description: t.Optional(t.String()),
@@ -57,7 +57,7 @@ export const handleCreateEvent = new Elysia()
   .put(
     handlerPath,
     async ({ error, body, store: { user } }) => {
-      //* note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
+      // Design note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
       if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
       if (!['admin'].includes(user.role))
         return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });

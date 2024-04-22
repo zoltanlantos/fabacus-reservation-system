@@ -8,7 +8,8 @@ import { Elysia } from 'elysia';
 const app = new Elysia();
 
 app
-  // todo: .use(logger())
+  // Design note: the Elysia ecosystem offers a wide range of loggers, I chose not to select one for this implementation.
+  // .use(logger())
   .use(swagger())
   .use(cors())
   .use(auth())

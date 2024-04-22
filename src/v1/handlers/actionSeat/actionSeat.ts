@@ -42,7 +42,7 @@ export const handleActionSeat = new Elysia()
     handlerPath,
     async ({ error, params, body, set, store: { user } }) => {
       try {
-        //* note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
+        // Design note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
         if (!['admin', 'patron'].includes(user.role))
           return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
@@ -76,7 +76,7 @@ export const handleActionSeat = new Elysia()
 
         switch (body.action) {
           case 'hold':
-            //* note: this sets or resets (refresh) the hold time
+            // Design note: this handles both setting and refreshing the hold
             tr.set(`${eventKey}:${seatKey}:hold`, user.id, { EX: seatHoldTime });
             tr.sAdd(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
             break;
