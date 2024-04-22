@@ -4,8 +4,8 @@
   "description": "A service that supports a busy online reservation system using NodeJs, Redis and Docker",
   "main": "src/app.ts",
   "type": "module",
-  "author": "Zoltán Lantos<zoltan.lantos@live.com>",
-  "license": "UNLICENSED",
+  "author": "Zoltán Lantos",
+  "license": "MIT",
   "scripts": {
     "dev": "bun run --watch src/app.ts",
     "dev:env": "cp .env.example .env",

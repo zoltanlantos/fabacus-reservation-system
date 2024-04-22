@@ -97,7 +97,7 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] add Swagger
   - [x] add design notes
   - [ ] add system design
-  - [ ] add CONTRIBUTING
+  - [x] add CONTRIBUTING
   - [ ] finalize README
 - [x] set up boilerplate
   - [x] bun
