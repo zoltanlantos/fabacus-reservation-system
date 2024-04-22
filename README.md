@@ -102,6 +102,7 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
     - [x] reserve
 - [x] require auth header
 - [x] handle CORS
+  - [ ] configure CORS
 - [x] add Swagger
 - [ ] enable TLS
 - [ ] switch containers to alpine

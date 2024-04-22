@@ -1,6 +1,8 @@
 import Elysia, { t } from 'elysia';
 import jwt from './jwt';
 
+//* note: functional requirements doesn't specify authentication,
+//* added a simple JWT creation endpoint as a stopgap solution to enable easier testing
 export const user = () =>
   new Elysia()
     .use(jwt())
@@ -8,7 +10,6 @@ export const user = () =>
       const token = headers.authorization?.replace(/^Bearer /, '');
       return { user: token && (await jwt.verify(token)) };
     })
-    //* note: functional requirements doesn't specify authentication, so I added a simple jwt sign endpoint
     .get('/jwt', async ({ jwt, query }) => ({ Authorize: `Bearer ${await jwt.sign({ ...query })}` }), {
       query: t.Object({ name: t.String({ minLength: 1 }), id: t.String({ minLength: 1 }) }),
       detail: {

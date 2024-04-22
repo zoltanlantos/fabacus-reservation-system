@@ -2,8 +2,19 @@ import { nanoIdLength } from '@/config';
 import { redisConnect } from '@/v1/helpers/redis';
 import { Elysia, t } from 'elysia';
 
+const handlerPath = '/v1/events/:eventId/seats';
+
+const params = t.Object({
+  eventId: t.String({ minLength: nanoIdLength }),
+});
+
+const detail = {
+  description: 'List all free seats for an event.',
+  tags: ['events'],
+};
+
 export const handleListSeats = new Elysia().get(
-  '/v1/events/:eventId/seats',
+  handlerPath,
   async ({ error, params }) => {
     try {
       const redis = await redisConnect();
@@ -18,13 +29,5 @@ export const handleListSeats = new Elysia().get(
       return error(500, { error: 'List Seats error', message: e });
     }
   },
-  {
-    params: t.Object({
-      eventId: t.String({ minLength: nanoIdLength }),
-    }),
-    detail: {
-      description: 'List all free seats for an event.',
-      tags: ['events'],
-    },
-  },
+  { detail, params },
 );

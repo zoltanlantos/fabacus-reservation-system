@@ -2,8 +2,28 @@ import { redisConnect } from '@/v1/helpers/redis';
 import { Elysia, t } from 'elysia';
 import { nanoid } from 'nanoid';
 
+const handlerPath = '/v1/events';
+
+const detail = {
+  description: 'Create an event with seats between 10 and 1000 (inclusive)',
+  tags: ['events'],
+};
+
+const body = t.Object(
+  //* note: functional requirements only specify the seats range,
+  //* The other meta fields are added for completeness
+  {
+    name: t.String({ minLength: 3 }),
+    description: t.Optional(t.String()),
+    date: t.Optional(t.String()),
+    location: t.Optional(t.String()),
+    seats: t.Number({ minimum: 10, maximum: 1000 }),
+  },
+  { description: 'An event can be created with these fields passed in the body.' },
+);
+
 export const handleCreateEvent = new Elysia().put(
-  '/v1/events',
+  handlerPath,
   async ({ error, body }) => {
     const eventId = nanoid();
 
@@ -30,23 +50,5 @@ export const handleCreateEvent = new Elysia().put(
       return error(500, { error: 'Create Event error', message: e });
     }
   },
-  {
-    //* note: functional requirements only specify the seats range, I added the other fields for completeness
-    body: t.Object(
-      {
-        name: t.String({ minLength: 3 }),
-        description: t.Optional(t.String()),
-        date: t.Optional(t.String()),
-        location: t.Optional(t.String()),
-        seats: t.Number({ minimum: 10, maximum: 1000 }),
-      },
-      {
-        description: 'Create event data payload',
-      },
-    ),
-    detail: {
-      description: 'Create an event with seats between 10 and 1000 (inclusive)',
-      tags: ['events'],
-    },
-  },
+  { detail, body },
 );

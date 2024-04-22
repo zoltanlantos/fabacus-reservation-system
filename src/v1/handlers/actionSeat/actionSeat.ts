@@ -3,6 +3,22 @@ import { redisConnect } from '@/v1/helpers/redis';
 import jwt from '@/v1/plugins/jwt';
 import { Elysia, t } from 'elysia';
 
+const handlerPath = '/v1/events/:eventId/seats/:seatId';
+
+const detail = {
+  description: 'Hold and reserve a seat for an event.',
+  tags: ['events'],
+};
+
+const params = t.Object({
+  eventId: t.String({ minLength: nanoIdLength }),
+  seatId: t.String({ minLength: nanoIdLength }),
+});
+
+const body = t.Object({
+  action: t.String({ enum: ['hold', 'reserved'] }),
+});
+
 export const handleActionSeat = new Elysia()
   .use(jwt())
   .derive(async ({ headers, jwt }) => {
@@ -10,7 +26,7 @@ export const handleActionSeat = new Elysia()
     return { user: token && (await jwt.verify(token)) };
   })
   .patch(
-    '/v1/events/:eventId/seats/:seatId',
+    handlerPath,
     async ({ error, params, body, set, user }) => {
       try {
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
@@ -57,17 +73,5 @@ export const handleActionSeat = new Elysia()
         return error(500, { error: 'Redis set error', message: e });
       }
     },
-    {
-      params: t.Object({
-        eventId: t.String({ minLength: nanoIdLength }),
-        seatId: t.String({ minLength: nanoIdLength }),
-      }),
-      body: t.Object({
-        action: t.String({ enum: ['hold', 'reserved'] }),
-      }),
-      detail: {
-        description: 'Hold and reserve a seats for an event.',
-        tags: ['events'],
-      },
-    },
+    { detail, params, body },
   );
