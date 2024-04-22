@@ -104,7 +104,7 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] biome
   - [x] editorconfig
   - [x] docker compose
-    - [ ] add app service
+    - [x] add app service
     - [ ] switch containers to alpine
     - [ ] enable TLS
   - [ ] commitizen
