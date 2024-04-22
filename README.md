@@ -79,29 +79,29 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 
 # TODO
 
-- [] design documentation
+- [ ] design documentation
 - [x] set up boilerplate
   - [x] bun
   - [x] biome
   - [x] editorconfig
   - [x] docker compose
-    - [] add app service
-    - [] add load balancer service
-  - [] commitizen
-  - [] husky
-  - [] github actions
+    - [ ] add app service
+    - [ ] add load balancer service
+  - [ ] commitizen
+  - [ ] husky
+  - [ ] github actions
 - [x] add Redis
-  - [] secure instance
+  - [ ] secure instance
 - [x] add Handlers
   - [x] PUT /events
   - [x] GET /events/:eventId/seats
   - [x] PATCH /events/:eventId/seats/:seatId
     - [x] hold
       - [x] refresh hold
-      - [] limit the number of seats a given user can hold in one event.
+      - [ ] limit the number of seats a given user can hold in one event.
     - [x] reserve
 - [x] require auth header
 - [x] handle CORS
 - [x] add Swagger
-- [] enable TLS
-- [] switch containers to alpine
+- [ ] enable TLS
+- [ ] switch containers to alpine
