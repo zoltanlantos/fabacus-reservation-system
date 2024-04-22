@@ -118,9 +118,8 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] PATCH /events/:eventId/seats/:seatId
     - [x] hold
       - [x] expire hold
-        - [ ] clean up seat states on auto expire (watch DEL/EXPIRE: https://redis.io/docs/latest/develop/use/keyspace-notifications/)
       - [x] refresh hold
-      - [x] limit the number of seats a given user can hold in one event.
+      - [x] limit the number of seats a given user can hold in one event
     - [x] reserve
 - [x] require auth header
 - [x] handle CORS
