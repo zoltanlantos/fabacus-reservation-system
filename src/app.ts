@@ -1,7 +1,7 @@
 import { appTitle, appVersion } from '@/config';
+import { auth } from '@/v1/plugins/auth';
 import cors from '@/v1/plugins/cors';
 import swagger from '@/v1/plugins/swagger';
-import { user } from '@/v1/plugins/user';
 import { addRoutesV1 } from '@/v1/routes';
 import { Elysia } from 'elysia';
 
@@ -11,7 +11,7 @@ app
   // todo: .use(logger())
   .use(swagger())
   .use(cors())
-  .use(user())
+  .use(auth())
   .get(
     '/',
     ({ set }) => {

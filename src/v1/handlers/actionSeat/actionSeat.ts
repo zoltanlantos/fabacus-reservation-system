@@ -1,6 +1,6 @@
 import { nanoIdLength, seatHoldTime } from '@/config';
 import { redisConnect } from '@/v1/helpers/redis';
-import jwt from '@/v1/plugins/jwt';
+import { userStore } from '@/v1/plugins/userStore';
 import { Elysia, t } from 'elysia';
 
 const handlerPath = '/v1/events/:eventId/seats/:seatId';
@@ -19,17 +19,29 @@ const body = t.Object({
   action: t.String({ enum: ['hold', 'reserved'] }),
 });
 
+/**
+ * Hold and reserve a seat for an event.
+ *
+ * @param {Object} params - The event and seat ids
+ * @param {string} params.eventId - The event id
+ * @param {string} params.seatId - The seat id
+ * @param {Object} body - The action to perform
+ * @param {string} body.action - The action to perform on the seat
+ * @returns {void}
+ * @throws {401} - Unauthorized - Missing or invalid token
+ */
+
 export const handleActionSeat = new Elysia()
-  .use(jwt())
-  .derive(async ({ headers, jwt }) => {
-    const token = headers.authorization?.replace(/^Bearer /, '');
-    return { user: token && (await jwt.verify(token)) };
-  })
+  // * note: jwtUser is used to populate the user store
+  .use(userStore())
   .patch(
     handlerPath,
-    async ({ error, params, body, set, user }) => {
+    async ({ error, params, body, set, store: { user } }) => {
       try {
+        // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
+        if (!['admin', 'patron'].includes(user.role))
+          return error(401, { error: 'Unauthorized', message: 'Invalid role' });
 
         const redis = await redisConnect();
         const eventKey = `event:${params.eventId}`;
