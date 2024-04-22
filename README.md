@@ -49,9 +49,7 @@ To start the production version run:
 docker-compose up
 ```
 
-Open http://localhost:9000/swagger with your browser to see the the API documentation.
-
-Visit http://localhost:5540/ for Redis Insight
+The production version of Redis and the API is configured to use the same port numbers as the development instances.
 
 # R&D
 
