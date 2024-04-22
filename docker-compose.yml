@@ -20,20 +20,25 @@ services:
       - '5540:5540'
     links:
       - redis
-    # volumes:
+    # volumes:                            # Uncomment this to persist data
     #   - redis-insight:/data
 
-  # app:
-  #   build: ./
-  #   volumes:
-  #     - ./:/var/www/app
-  #   links:
-  #     - redis
-  #   ports:
-  #     - 9000:9000
-  #   environment:
-  #     - REDIS_URL=redis://cache
-  #     - NODE_ENV=development
-  #     - PORT=9000
-  #     command:
-  #     sh -c 'bun install && bun start'
+  app:
+    build: ./
+    entrypoint: []
+    links:
+      - redis
+    ports:
+      - 9000:9000
+    environment:
+      - REDIS_URL=redis://cache
+      - NODE_ENV=production
+      - PORT=9000
+      - JWT_SECRET=/run/secrets/JWT_SECRET
+    secrets:
+      - JWT_SECRET
+    command: /bin/sh -c 'bun start'
+
+secrets:
+  JWT_SECRET:
+    external: true

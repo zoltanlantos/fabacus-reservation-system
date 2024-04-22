@@ -46,6 +46,7 @@ Add Redis Database with Host: `cache` and Port: `6379`
 To start the production version run:
 
 ```bash
+echo "my super secret password" | docker secret create JWT_SECRET -
 docker-compose up
 ```
 

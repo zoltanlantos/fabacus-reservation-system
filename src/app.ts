@@ -32,6 +32,6 @@ addRoutesV1(app);
 
 app.all('*', ({ error }) => error(404, 'Not Found'));
 
-app.listen(9000);
+app.listen(process.env.PORT || 9000);
 
-console.info(`${appTitle} v${appVersion} is running at https://${app.server?.hostname}:${app.server?.port}`);
+console.info(`${appTitle} v${appVersion} is running at http://${app.server?.hostname}:${app.server?.port}`);
