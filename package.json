@@ -8,6 +8,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "bun run --watch src/app.ts",
+    "dev:env": "cp .env.example .env",
     "start": "bun run src/app.ts",
     "start:redis": "docker-compose up redis redis-insight",
     "build": "bun build src/app.ts --outfile dist/app.js",

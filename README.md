@@ -11,6 +11,14 @@ curl -fsSL https://bun.sh/install | bash
 bun install
 ```
 
+To set up env run:
+
+```bash
+bun dev:env
+```
+
+Then edit `.env` and add a random string for `JWT_SECRET`. 
+
 ## Development
 
 Please read the [CONTRIBUTING.md](./CONTRIBUTING.md)
@@ -93,7 +101,8 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
   - [x] editorconfig
   - [x] docker compose
     - [ ] add app service
-    - [ ] add load balancer service
+    - [ ] switch containers to alpine
+    - [ ] enable TLS
   - [ ] commitizen
   - [ ] husky
   - [ ] github actions
@@ -109,9 +118,6 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
     - [x] reserve
 - [x] require auth header
 - [x] handle CORS
-  - [ ] configure CORS
 - [x] add Swagger
-- [ ] enable TLS
-- [ ] switch containers to alpine
 - [ ] load testing
 - [ ] pen testing

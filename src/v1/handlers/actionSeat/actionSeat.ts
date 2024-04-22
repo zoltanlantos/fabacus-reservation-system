@@ -16,7 +16,7 @@ const params = t.Object({
 });
 
 const body = t.Object({
-  action: t.String({ enum: ['hold', 'reserved'] }),
+  action: t.String({ enum: ['hold', 'reserve'] }),
 });
 
 /**
@@ -29,10 +29,10 @@ const body = t.Object({
  * @param {string} body.action - The action to perform on the seat
  * @returns {void}
  * @throws {401} - Unauthorized - Missing or invalid token
- * 
- * Design notes: It could be argued that the hold, refresh and reserve actions are different enough to warrant separate endpoints. 
+ *
+ * Design notes: It could be argued that the hold, refresh and reserve actions are different enough to warrant separate endpoints.
  * I decided to combine them into one as all three operates on the same dataset.
- * A single PATCH endpoint better aligns with semantic REST best practices. 
+ * A single PATCH endpoint better aligns with semantic REST best practices.
  */
 
 export const handleActionSeat = new Elysia()
@@ -45,23 +45,28 @@ export const handleActionSeat = new Elysia()
         // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
         if (!['admin', 'patron'].includes(user.role))
-          return error(401, { error: 'Unauthorized', message: 'Invalid role' });
+          return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
 
         const redis = await redisConnect();
         const eventKey = `event:${params.eventId}`;
         const seatKey = `seat:${params.seatId}`;
 
+        const seat = await redis.get(seatKey);
+        if (!seat) return error(404, { error: 'Not Found', message: 'Seat not found' });
+
         const [holdUser, reserveUser] = await Promise.all([
           redis.get(`${eventKey}:${seatKey}:hold`),
-          redis.get(`${eventKey}:${seatKey}:reserved`),
+          redis.get(`${eventKey}:${seatKey}:reserve`),
         ]);
 
         if (reserveUser) return error(409, { error: 'Conflict', message: 'Seat is already reserved' });
         if (holdUser && holdUser !== user.id)
           return error(409, { error: 'Conflict', message: 'Seat is held by another user' });
+        if (!holdUser && body.action === 'reserve')
+          return error(409, { error: 'Conflict', message: 'Seat is not held by user' });
 
         const tr = redis.multi();
-        // todo: subscribe to hold expiration and readd seat to free
+        // todo: subscribe DEl and EXPIRE notifications (https://redis.io/docs/latest/develop/use/keyspace-notifications/)
         tr.sRem(`${eventKey}:seats:free`, seatKey);
         tr.hSet(seatKey, 'status', body.action);
 
@@ -71,10 +76,9 @@ export const handleActionSeat = new Elysia()
             //* note: this sets or resets (refresh) the hold time
             tr.set(`${eventKey}:${seatKey}:hold`, user.id, { EX: seatHoldTime });
             break;
-          case 'reserved':
-            if (!holdUser) return error(409, { error: 'Conflict', message: 'Seat is not held' });
+          case 'reserve':
             tr.del(`${eventKey}:${seatKey}:hold`);
-            tr.set(`${eventKey}:${seatKey}:reserved`, user.id);
+            tr.set(`${eventKey}:${seatKey}:reserve`, user.id);
             break;
         }
 
@@ -82,7 +86,7 @@ export const handleActionSeat = new Elysia()
         await redis.quit();
 
         set.status = 204;
-        return;
+        return null;
       } catch (e) {
         console.error(e);
         return error(500, { error: 'Redis set error', message: e });

@@ -23,7 +23,10 @@ app
   //* note: example of how to deprecate a version
   .all('/v0', ({ error }) => error(410, 'Gone'));
 
-//* note: each version should be added as a separate module
+/**
+ * Design notes: Wrapping the app src in a versioned route allows for easy versioning and deprecation of endpoints.
+ * New versions can be added by copying the previous version's folder before introducing breaking changes.
+ */
 addRoutesV1(app);
 
 app.all('*', ({ error }) => error(404, 'Not Found'));

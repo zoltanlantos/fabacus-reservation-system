@@ -3,9 +3,9 @@ import { userStore } from './userStore';
 
 /**
  * Auth plugin
- * 
+ *
  * The auth plugin is a simple JWT creation endpoint to enable easier testing.
- * 
+ *
  * Design notes: functional requirements doesn't specify authentication,
  * in a real-world scenario this would be replaced with a proper authentication and authorization mechanism.
  */

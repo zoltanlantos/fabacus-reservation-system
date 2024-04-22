@@ -24,7 +24,7 @@ const detail = {
  * @returns {string} Object[].name - The seat name
  * @returns {string} Object[].status - The seat status
  * @throws {401} - Unauthorized - Missing or invalid token
- * 
+ *
  * Design notes: Using the event:<eventId>:seats:free set enable quick list and holding of seats,
  * it serves as a lookup table (manual index) for the free seats.
  * As the complexity grows it could be replaced with an automated redis index built from the seat:<seatId> hash table.
@@ -40,7 +40,7 @@ export const handleListSeats = new Elysia()
         // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
         if (!['admin', 'patron'].includes(user.role))
-          return error(401, { error: 'Unauthorized', message: 'Invalid role' });
+          return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
 
         const redis = await redisConnect();
         const freeSeats = await redis.sMembers(`event:${params.eventId}:seats:free`);

@@ -2,7 +2,7 @@ import { jwtSecret } from '@/config';
 import { jwt } from '@elysiajs/jwt';
 import Elysia from 'elysia';
 
-type User = { id: string; name: string; role: 'admin' | 'patron' } | undefined;
+export type User = { id: string; name: string; role: 'admin' | 'patron' } | undefined;
 
 export const userStore = () => {
   if (!jwtSecret) throw new Error('JWT secret is not defined');
