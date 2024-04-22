@@ -1,4 +1,4 @@
-import { nanoIdLength, seatHoldTime } from '@/config';
+import { nanoIdLength, seatHoldTime, seatUserLimit } from '@/config';
 import { redisConnect } from '@/v1/helpers/redis';
 import { userStore } from '@/v1/plugins/userStore';
 import { Elysia, t } from 'elysia';
@@ -42,7 +42,7 @@ export const handleActionSeat = new Elysia()
     handlerPath,
     async ({ error, params, body, set, store: { user } }) => {
       try {
-        // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
+        //* note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
         if (!['admin', 'patron'].includes(user.role))
           return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
@@ -50,9 +50,14 @@ export const handleActionSeat = new Elysia()
         const redis = await redisConnect();
         const eventKey = `event:${params.eventId}`;
         const seatKey = `seat:${params.seatId}`;
+        const userKey = `user:${user.id}`;
 
-        const seat = await redis.get(seatKey);
+        const seat = await redis.hGet(seatKey, 'status');
         if (!seat) return error(404, { error: 'Not Found', message: 'Seat not found' });
+
+        const holdCount = await redis.sCard(`${userKey}:seats:held`);
+        if (holdCount >= seatUserLimit)
+          return error(403, { error: 'Forbidden', message: 'Maximum held seats reached' });
 
         const [holdUser, reserveUser] = await Promise.all([
           redis.get(`${eventKey}:${seatKey}:hold`),
@@ -66,19 +71,19 @@ export const handleActionSeat = new Elysia()
           return error(409, { error: 'Conflict', message: 'Seat is not held by user' });
 
         const tr = redis.multi();
-        // todo: subscribe DEl and EXPIRE notifications (https://redis.io/docs/latest/develop/use/keyspace-notifications/)
         tr.sRem(`${eventKey}:seats:free`, seatKey);
         tr.hSet(seatKey, 'status', body.action);
 
         switch (body.action) {
           case 'hold':
-            // todo: limit holds per user
             //* note: this sets or resets (refresh) the hold time
             tr.set(`${eventKey}:${seatKey}:hold`, user.id, { EX: seatHoldTime });
+            tr.sAdd(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
             break;
           case 'reserve':
             tr.del(`${eventKey}:${seatKey}:hold`);
             tr.set(`${eventKey}:${seatKey}:reserve`, user.id);
+            tr.sRem(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
             break;
         }
 

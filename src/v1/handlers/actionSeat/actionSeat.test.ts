@@ -8,6 +8,7 @@ import {
   mockSeatIdReserve,
   setMockAdminUser,
   setMockPatronUser,
+  setMockPatronUserMaxed,
 } from '@/v1/tests/mocks';
 import { treaty } from '@elysiajs/eden';
 import { Elysia } from 'elysia';
@@ -15,6 +16,7 @@ import { handleActionSeat } from './actionSeat';
 
 const apiAdminAuthorized = treaty(new Elysia().use(handleActionSeat).onRequest(setMockAdminUser));
 const apiPatronAuthorized = treaty(new Elysia().use(handleActionSeat).onRequest(setMockPatronUser));
+const apiPatronMaxedAuthorized = treaty(new Elysia().use(handleActionSeat).onRequest(setMockPatronUserMaxed));
 const apiUnauthorized = treaty(new Elysia().use(handleActionSeat));
 
 describe('handle seat action', () => {
@@ -28,6 +30,19 @@ describe('handle seat action', () => {
     expect(error?.value).toEqual({
       error: 'Unauthorized',
       message: 'Missing or invalid token',
+    });
+  });
+
+  it('should return 403', async () => {
+    const { data, response, error } = await apiPatronMaxedAuthorized.v1
+      .events({ eventId: mockEventId })
+      .seats({ seatId: mockSeatIdFree })
+      .patch({ action: 'hold' });
+    expect(response.status).toBe(403);
+    expect(data).toBeNull();
+    expect(error?.value).toEqual({
+      error: 'Forbidden',
+      message: 'Maximum held seats reached',
     });
   });
 

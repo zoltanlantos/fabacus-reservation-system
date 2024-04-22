@@ -26,28 +26,31 @@ export const mockPatronUser = {
   role: 'patron' as const,
 };
 
-export const setMockAdminUser = (ctx: { store: { user: User } }): void => {
+export const mockPatronUserMaxed = {
+  id: 'mock-patron-id-maxed',
+  name: 'Mock Patron User Maxed',
+  role: 'patron' as const,
+};
+
+type CTX = { store: { user: User } };
+
+export const setMockAdminUser = (ctx: CTX) => {
   ctx.store.user = mockAdminUser;
 };
 
-export const setMockPatronUser = (ctx: { store: { user: User } }): void => {
+export const setMockPatronUser = (ctx: CTX) => {
   ctx.store.user = mockPatronUser;
 };
 
-mock.module('nanoid', () => ({ nanoid: () => 'mock-id' }));
+export const setMockPatronUserMaxed = (ctx: CTX) => {
+  ctx.store.user = mockPatronUserMaxed;
+};
 
 //* note: redis-mock doesn't support v4 at the time of writing
 const redis = {
   set: () => ({}),
   get: (key: string) => {
     switch (key) {
-      case `seat:${mockSeatIdNone}`:
-        return undefined;
-      case `seat:${mockSeatIdFree}`:
-      case `seat:${mockSeatIdHold}`:
-      case `seat:${mockSeatIdHoldOther}`:
-      case `seat:${mockSeatIdReserve}`:
-        return {};
       case `event:${mockEventId}:seat:${mockSeatIdFree}:hold`:
         return undefined;
       case `event:${mockEventId}:seat:${mockSeatIdFree}:reserve`:
@@ -67,9 +70,31 @@ const redis = {
   sMembers: () => ({
     map: () => [mockSeat1],
   }),
+  sCard: (key: string) => {
+    switch (key) {
+      case `user:${mockPatronUserMaxed.id}:seats:held`:
+        return 10;
+      default:
+        return 0;
+    }
+  },
+  hGet: (key: string) => {
+    switch (key) {
+      case `seat:${mockSeatIdNone}`:
+        return undefined;
+      case `seat:${mockSeatIdFree}`:
+      case `seat:${mockSeatIdHold}`:
+      case `seat:${mockSeatIdHoldOther}`:
+      case `seat:${mockSeatIdReserve}`:
+        return {};
+      default:
+        return undefined;
+    }
+  },
   hSet: () => ({}),
-  exec: () => ({}),
+  exec: () => [],
 };
+
 mock.module('@/v1/helpers/redis', () => ({
   redisConnect: () => ({
     ...redis,
@@ -77,3 +102,5 @@ mock.module('@/v1/helpers/redis', () => ({
     multi: () => redis,
   }),
 }));
+
+mock.module('nanoid', () => ({ nanoid: () => 'mock-id' }));

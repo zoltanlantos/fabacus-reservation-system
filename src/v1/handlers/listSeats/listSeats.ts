@@ -37,7 +37,7 @@ export const handleListSeats = new Elysia()
     handlerPath,
     async ({ error, params, store: { user } }) => {
       try {
-        // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
+        //* note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
         if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
         if (!['admin', 'patron'].includes(user.role))
           return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });

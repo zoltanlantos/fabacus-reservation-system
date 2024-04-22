@@ -30,7 +30,6 @@ describe('handle create event', () => {
   });
 
   it('should create an event', async () => {
-    // todo: mock and spyOn redisConnect
     const { data, response, error } = await apiAdminAuthorized.v1.events.put({ name: 'event-name', seats: 10 });
     expect(response.status).toBe(200);
     expect(data).toStrictEqual({ id: 'mock-id' });

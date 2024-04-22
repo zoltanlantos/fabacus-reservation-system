@@ -57,7 +57,7 @@ export const handleCreateEvent = new Elysia()
   .put(
     handlerPath,
     async ({ error, body, store: { user } }) => {
-      // todo: move user checks to a macro (https://elysiajs.com/patterns/macro.html)
+      //* note: consider to move user checks to a macro (https://elysiajs.com/patterns/macro.html)
       if (!user) return error(401, { error: 'Unauthorized', message: 'Missing or invalid token' });
       if (!['admin'].includes(user.role))
         return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
