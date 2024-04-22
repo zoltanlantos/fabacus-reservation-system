@@ -27,8 +27,7 @@ const body = t.Object(
  * Events are stored in Redis with the following structure:
  * - event:<eventId> -> { id: <eventId>, name: <name>, description: <description>, date: <date>, location: <location> }
  * - event:<eventId>:seats -> Set of seat keys
- * - seat:<seatId> -> { id: <seatId>, name: <name>, status: 'free' }
- * - event:<eventId>:seats:free -> Set of free seat keys
+ * - seat:<seatId> -> { id: <seatId>, name: <name> }
  *
  * @param {Object} body - The event payload to be stored in Redis
  * @param {string} body.name - The name of the event
@@ -75,8 +74,6 @@ export const handleCreateEvent = new Elysia()
           tr.sAdd(`event:${eventId}:seats`, seatKey);
           tr.hSet(seatKey, 'id', seatId);
           tr.hSet(seatKey, 'name', `Seat #${seatIdx + 1}`);
-          tr.hSet(seatKey, 'status', 'free');
-          tr.sAdd(`event:${eventId}:seats:free`, seatKey);
         }
         await tr.exec();
         await redis.quit();

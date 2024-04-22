@@ -3,15 +3,33 @@ import type { User } from '@/v1/plugins/userStore';
 
 export const mockEventId = 'mock-id-9012345678901';
 export const mockSeatIdNone = 'mock-id-none-45678901';
-export const mockSeatIdFree = 'mock-id-9012345678901';
+export const mockSeatIdFree = 'mock-id-free-45678901';
 export const mockSeatIdHold = 'mock-id-hold-45678901';
 export const mockSeatIdHoldOther = 'mock-id-hold-other-01';
 export const mockSeatIdReserve = 'mock-id-reserve-78901';
 
-export const mockSeat1 = {
+export const mockSeatDataFree = {
   id: mockSeatIdFree,
-  name: 'Seat #1',
+  name: 'Seat #free',
   status: 'free',
+};
+
+export const mockSeatDataHold = {
+  id: mockSeatIdHold,
+  name: 'Seat #hold',
+  status: 'hold',
+};
+
+export const mockSeatDataHoldOther = {
+  id: mockSeatIdHoldOther,
+  name: 'Seat #hold-other',
+  status: 'hold',
+};
+
+export const mockSeatDataReserve = {
+  id: mockSeatIdReserve,
+  name: 'Seat #reserve',
+  status: 'reserve',
 };
 
 export const mockAdminUser = {
@@ -51,31 +69,45 @@ const redis = {
   set: () => ({}),
   get: (key: string) => {
     switch (key) {
-      case `event:${mockEventId}:seat:${mockSeatIdFree}:hold`:
-        return undefined;
-      case `event:${mockEventId}:seat:${mockSeatIdFree}:reserve`:
-        return undefined;
-      case `event:${mockEventId}:seat:${mockSeatIdHold}:hold`:
-        return mockPatronUser.id;
-      case `event:${mockEventId}:seat:${mockSeatIdHoldOther}:hold`:
-        return 'mock-user-other';
-      case `event:${mockEventId}:seat:${mockSeatIdReserve}:reserve`:
-        return {};
+      case `event:${mockEventId}:seat:${mockSeatIdHold}:status`:
+        return `hold:${mockPatronUser.id}`;
+      case `event:${mockEventId}:seat:${mockSeatIdHoldOther}:status`:
+        return `hold:${mockAdminUser.id}`;
+      case `event:${mockEventId}:seat:${mockSeatIdReserve}:status`:
+        return `reserve:${mockPatronUser.id}`;
       default:
         return undefined;
     }
   },
   sAdd: () => ({}),
   sRem: () => ({}),
-  sMembers: () => ({
-    map: () => [mockSeat1],
-  }),
+  sMembers: (key: string) => {
+    switch (key) {
+      case `user:${mockPatronUserMaxed.id}:seats:held`:
+        return [`event:${mockEventId}:seat:${mockSeatIdHold}`];
+      case `event:${mockEventId}:seats`:
+        return [`seat:${mockSeatIdFree}`, `seat:${mockSeatIdHold}`, `seat:${mockSeatIdReserve}`];
+      default:
+        return { map: () => [mockSeatDataFree] };
+    }
+  },
   sCard: (key: string) => {
     switch (key) {
       case `user:${mockPatronUserMaxed.id}:seats:held`:
         return 10;
       default:
         return 0;
+    }
+  },
+  hExists: (key: string) => {
+    switch (key) {
+      case `seat:${mockSeatIdFree}`:
+      case `seat:${mockSeatIdHold}`:
+      case `seat:${mockSeatIdHoldOther}`:
+      case `seat:${mockSeatIdReserve}`:
+        return true;
+      default:
+        return false;
     }
   },
   hGet: (key: string) => {
@@ -91,8 +123,25 @@ const redis = {
         return undefined;
     }
   },
+  hGetAll: (key: string) => {
+    switch (key) {
+      case `seat:${mockSeatIdFree}`:
+        return mockSeatDataFree;
+      case `seat:${mockSeatIdHold}`:
+        return mockSeatDataHold;
+      case `seat:${mockSeatIdHoldOther}`:
+        return mockSeatDataHoldOther;
+      case `seat:${mockSeatIdReserve}`:
+        return mockSeatDataReserve;
+      default:
+        return undefined;
+    }
+  },
   hSet: () => ({}),
-  exec: () => [],
+  exec: () => {
+    if (process.env.TESTING_SEAT_LIMIT) return [`hold:${mockPatronUser.id}`];
+    return [mockSeatDataFree, null];
+  },
 };
 
 mock.module('@/v1/helpers/redis', () => ({

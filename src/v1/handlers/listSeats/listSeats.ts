@@ -25,9 +25,9 @@ const detail = {
  * @returns {string} Object[].status - The seat status
  * @throws {401} - Unauthorized - Missing or invalid token
  *
- * Design notes: Using the event:<eventId>:seats:free set enable quick list and holding of seats,
- * it serves as a lookup table (manual index) for the free seats.
- * As the complexity grows it could be replaced with an automated redis index built from the seat:<seatId> hash table.
+ * Design notes: Free seats are indicated by not having an associated status.
+ * The status is stored as a string in the format "<status>:<userId>".
+ * Seat has tables and status strings are fetched in a single redis.multi() call to reduce requests.
  */
 
 export const handleListSeats = new Elysia()
@@ -42,13 +42,26 @@ export const handleListSeats = new Elysia()
         if (!['admin', 'patron'].includes(user.role))
           return error(403, { error: 'Forbidden', message: 'Insufficient permissions' });
 
-        const redis = await redisConnect();
-        const freeSeats = await redis.sMembers(`event:${params.eventId}:seats:free`);
-        const tasks = freeSeats.map((seat) => redis.hGetAll(seat));
-        const seatDataList = await Promise.all(tasks);
-        redis.quit();
+        const eventKey = `event:${params.eventId}`;
 
-        return seatDataList;
+        const redis = await redisConnect();
+        const seatKeys = await redis.sMembers(`${eventKey}:seats`);
+        const tr = redis.multi();
+        for (const seatKey of seatKeys) {
+          tr.hGetAll(seatKey);
+          tr.get(`${eventKey}:${seatKey}:status`);
+        }
+        const trData = await tr.exec();
+        const freeSeats = [];
+        for (let i = 0; i < trData.length; i += 2) {
+          const seat = trData[i] as Record<string, string> | undefined;
+          if (seat?.id) {
+            const status = trData[i + 1] as string | null;
+            seat.status = status?.split(':')[0] || 'free';
+            if (seat.status === 'free') freeSeats.push(seat);
+          }
+        }
+        return freeSeats;
       } catch (e) {
         console.error(e);
         return error(500, { error: 'List seats error', message: e });

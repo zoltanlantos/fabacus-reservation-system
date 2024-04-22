@@ -52,41 +52,48 @@ export const handleActionSeat = new Elysia()
         const seatKey = `seat:${params.seatId}`;
         const userKey = `user:${user.id}`;
 
-        const seat = await redis.hGet(seatKey, 'status');
-        if (!seat) return error(404, { error: 'Not Found', message: 'Seat not found' });
+        const hasSeat = await redis.hExists(seatKey, 'id');
+        if (!hasSeat) return error(404, { error: 'Not Found', message: 'Seat not found' });
 
-        const holdCount = await redis.sCard(`${userKey}:seats:held`);
-        if (holdCount >= seatUserLimit)
-          return error(403, { error: 'Forbidden', message: 'Maximum held seats reached' });
+        const userHeldSeats = await redis.sMembers(`${userKey}:seats:held`);
+        if (userHeldSeats.length >= seatUserLimit) {
+          const trStatus = redis.multi();
+          for (const userHeldSeat of userHeldSeats) {
+            trStatus.get(`${userHeldSeat}:status`);
+          }
+          const trStatusData = await trStatus.exec();
+          const stillHeld = trStatusData.filter((status) => (status as string | null)?.startsWith('hold:'));
 
-        const [holdUser, reserveUser] = await Promise.all([
-          redis.get(`${eventKey}:${seatKey}:hold`),
-          redis.get(`${eventKey}:${seatKey}:reserve`),
-        ]);
+          if (stillHeld.length >= seatUserLimit) {
+            return error(403, { error: 'Forbidden', message: 'Maximum held seats reached' });
+          }
+        }
 
-        if (reserveUser) return error(409, { error: 'Conflict', message: 'Seat is already reserved' });
-        if (holdUser && holdUser !== user.id)
+        const seatStatus = await redis.get(`${eventKey}:${seatKey}:status`);
+        const [status, ownerId] = seatStatus?.split(':') || ['free', null];
+
+        if (status === 'reserve') {
+          return error(409, { error: 'Conflict', message: 'Seat is already reserved' });
+        }
+        if (status === 'hold' && ownerId !== user.id) {
           return error(409, { error: 'Conflict', message: 'Seat is held by another user' });
-        if (!holdUser && body.action === 'reserve')
+        }
+        if (status !== 'hold' && body.action === 'reserve') {
           return error(409, { error: 'Conflict', message: 'Seat is not held by user' });
+        }
 
         const tr = redis.multi();
-        tr.sRem(`${eventKey}:seats:free`, seatKey);
-        tr.hSet(seatKey, 'status', body.action);
-
         switch (body.action) {
           case 'hold':
             // Design note: this handles both setting and refreshing the hold
-            tr.set(`${eventKey}:${seatKey}:hold`, user.id, { EX: seatHoldTime });
+            tr.set(`${eventKey}:${seatKey}:status`, `hold:${user.id}`, { EX: seatHoldTime });
             tr.sAdd(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
             break;
           case 'reserve':
-            tr.del(`${eventKey}:${seatKey}:hold`);
-            tr.set(`${eventKey}:${seatKey}:reserve`, user.id);
+            tr.set(`${eventKey}:${seatKey}:status`, `reserve:${user.id}`);
             tr.sRem(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
             break;
         }
-
         await tr.exec();
         await redis.quit();
 

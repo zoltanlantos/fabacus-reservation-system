@@ -33,7 +33,8 @@ describe('handle seat action', () => {
     });
   });
 
-  it('should return 403', async () => {
+  it('should return 403 (max held)', async () => {
+    process.env.TESTING_SEAT_LIMIT = '1';
     const { data, response, error } = await apiPatronMaxedAuthorized.v1
       .events({ eventId: mockEventId })
       .seats({ seatId: mockSeatIdFree })
@@ -44,6 +45,7 @@ describe('handle seat action', () => {
       error: 'Forbidden',
       message: 'Maximum held seats reached',
     });
+    process.env.TESTING_SEAT_LIMIT = undefined;
   });
 
   it('should return 404 Not Found', async () => {
