@@ -11,7 +11,7 @@ curl -fsSL https://bun.sh/install | bash
 bun install
 ```
 
-To set up env run:
+To set up env for dev run:
 
 ```bash
 bun dev:env
@@ -94,7 +94,12 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 
 # TODO
 
-- [ ] design documentation
+- [ ] documentation
+  - [x] add Swagger
+  - [x] add design notes
+  - [ ] add system design
+  - [ ] add CONTRIBUTING
+  - [ ] finalize README
 - [x] set up boilerplate
   - [x] bun
   - [x] biome
@@ -120,6 +125,5 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
     - [x] reserve
 - [x] require auth header
 - [x] handle CORS
-- [x] add Swagger
 - [ ] load testing
 - [ ] pen testing
