@@ -1,8 +1,15 @@
 import Elysia, { t } from 'elysia';
 import { userStore } from './userStore';
 
-//* note: functional requirements doesn't specify authentication,
-//* added a simple JWT creation endpoint as a stopgap solution to enable easier testing
+/**
+ * Auth plugin
+ * 
+ * The auth plugin is a simple JWT creation endpoint to enable easier testing.
+ * 
+ * Design notes: functional requirements doesn't specify authentication,
+ * in a real-world scenario this would be replaced with a proper authentication and authorization mechanism.
+ */
+
 export const auth = () =>
   new Elysia()
     .use(userStore())

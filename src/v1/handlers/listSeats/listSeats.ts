@@ -15,9 +15,7 @@ const detail = {
 };
 
 /**
- * List all free seats for an event. Using the event:<eventId>:seats:free set.
- * It's a simple manual index of the free seats.
- * Consider replacing it with an automated redis index built from the seat:<seatId> hash table.
+ * List all free seats for an event.
  *
  * @param {Object} params - The event id
  * @param {string} params.eventId - The event id
@@ -26,6 +24,10 @@ const detail = {
  * @returns {string} Object[].name - The seat name
  * @returns {string} Object[].status - The seat status
  * @throws {401} - Unauthorized - Missing or invalid token
+ * 
+ * Design notes: Using the event:<eventId>:seats:free set enable quick list and holding of seats,
+ * it serves as a lookup table (manual index) for the free seats.
+ * As the complexity grows it could be replaced with an automated redis index built from the seat:<seatId> hash table.
  */
 
 export const handleListSeats = new Elysia()
@@ -49,7 +51,7 @@ export const handleListSeats = new Elysia()
         return seatDataList;
       } catch (e) {
         console.error(e);
-        return error(500, { error: 'List Seats error', message: e });
+        return error(500, { error: 'List seats error', message: e });
       }
     },
     { detail, params },

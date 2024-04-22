@@ -13,6 +13,8 @@ bun install
 
 ## Development
 
+Please read the [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 To start the development server locally run:
 
 ```bash
@@ -53,7 +55,9 @@ Instead of starting with a tried and tested framework like Express or Restify, u
 
 I chose Bun, it is a tool that I used to run single .ts files before but not yet used for an entire project. The documentation states:
 
-> Bun is an all-in-one toolkit for JavaScript and TypeScript apps. [...] a fast JavaScript runtime designed as a drop-in replacement for Node.js. It's written in Zig and powered by JavaScriptCore under the hood, dramatically reducing startup times and memory usage.
+> Bun is an all-in-one toolkit for JavaScript and TypeScript apps. [...] a fast JavaScript runtime designed as a drop-in replacement for Node.js. It's written in Zig and powered by JavaScriptCore under the hood, dramatically reducing startup times and memory usage. [...] Bun processes start 4x faster than Node.js.
+
+[Performance chart](https://twitter.com/jarredsumner/status/1499225725492076544)
 
 ## Framework
 
@@ -62,6 +66,9 @@ Bun has a large ecosystem that offers alternatives to popular frameworks and lib
 After examining and testing some custom project templates I decided to use ElysiaJs:
 
 > TypeScript framework supercharged by Bun with End-to-End Type Safety, unified type system, and outstanding developer experience.
+> Elysia can outperform most of the web frameworks available today, and even match the performance of Golang and Rust framework.
+
+[Performance chart](https://elysiajs.com/at-glance.html#performance)
 
 It comes with a `bun create elysia app` command.
 
@@ -106,3 +113,5 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 - [x] add Swagger
 - [ ] enable TLS
 - [ ] switch containers to alpine
+- [ ] load testing
+- [ ] pen testing

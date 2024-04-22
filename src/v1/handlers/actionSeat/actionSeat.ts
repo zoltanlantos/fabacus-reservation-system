@@ -20,7 +20,7 @@ const body = t.Object({
 });
 
 /**
- * Hold and reserve a seat for an event.
+ * Hold, refresh hold and reserve a seat for an event.
  *
  * @param {Object} params - The event and seat ids
  * @param {string} params.eventId - The event id
@@ -29,10 +29,14 @@ const body = t.Object({
  * @param {string} body.action - The action to perform on the seat
  * @returns {void}
  * @throws {401} - Unauthorized - Missing or invalid token
+ * 
+ * Design notes: It could be argued that the hold, refresh and reserve actions are different enough to warrant separate endpoints. 
+ * I decided to combine them into one as all three operates on the same dataset.
+ * A single PATCH endpoint better aligns with semantic REST best practices. 
  */
 
 export const handleActionSeat = new Elysia()
-  // * note: jwtUser is used to populate the user store
+  //// keep formatting
   .use(userStore())
   .patch(
     handlerPath,
@@ -47,7 +51,6 @@ export const handleActionSeat = new Elysia()
         const eventKey = `event:${params.eventId}`;
         const seatKey = `seat:${params.seatId}`;
 
-        // todo: use tr?
         const [holdUser, reserveUser] = await Promise.all([
           redis.get(`${eventKey}:${seatKey}:hold`),
           redis.get(`${eventKey}:${seatKey}:reserved`),

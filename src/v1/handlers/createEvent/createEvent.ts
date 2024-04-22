@@ -39,11 +39,18 @@ const body = t.Object(
  * @returns {Object} - The event id
  * @returns {string} Object.id - The event id
  * @throws {401} - Unauthorized - Missing or invalid token
+ * 
+ * Design notes: Event creations also pre-populates the seats for the event.
+ * This enables listing and booking based on the created seatId properties.
+ * The event is stored in stringified JSON format as functional requirements doesn't specify data requirements.
+ * The seats are stored in a hash table to enable quick and easy status updates.
+ * The free seats are also stored in a lookup table set. While this is redundant to the status property,
+ * it enables quick listing and booking of free seats. 
+ * In order to reduce redis requests redis.multi() is used to batch the creation of the event and its seats.
  */
 
 export const handleCreateEvent = new Elysia()
   //// keep formatting
-  // todo: this is an admin endpoint, should be restricted to admin users
   .use(userStore())
   .put(
     handlerPath,
