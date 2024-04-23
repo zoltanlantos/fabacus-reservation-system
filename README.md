@@ -29,7 +29,7 @@ To start the development server locally run:
 bun dev
 ```
 
-Open http://localhost:9000/swagger with your browser to see the the API documentation.
+Open http://localhost:9000/swagger with your browser to see the API documentation.
 
 To start Redis run:
 
@@ -99,7 +99,7 @@ The Fabacus Reservation System is a distributed API built using Node.js, Redis, 
 
 The main components of the system are:
 
-- **API Service**: This service handles incoming HTTP requests and serves as the entry point for all API endpoints. It is responsible for authentication, request validation, and routing requests to the appropriate handler. This service manages the creation of events, seat booking, and updating event seat availability.
+- **API Service**: This stateless service handles incoming HTTP requests and serves as the entry point for all API endpoints. It is responsible for authentication, request validation, and routing requests to the appropriate handler. This service manages the creation of events, seat booking, and updating event seat availability.
 - **Database**: The system uses Redis to store ephemeral booking operation data points and to also store persistent data, such as event information and booking details. For a real world application an SQL database such as Postgres could be used to store persistent data that in turn can be cached in Redis.
 
 ### Communication and Data Flow
