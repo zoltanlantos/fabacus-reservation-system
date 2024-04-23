@@ -79,6 +79,8 @@ const redis = {
         return undefined;
     }
   },
+  del: () => ({}),
+  expire: () => ({}),
   sAdd: () => ({}),
   sRem: () => ({}),
   sMembers: (key: string) => {

@@ -55,6 +55,10 @@ export const handleActionSeat = new Elysia()
         const hasSeat = await redis.hExists(seatKey, 'id');
         if (!hasSeat) return error(404, { error: 'Not Found', message: 'Seat not found' });
 
+        // Design note: there is an edge case where the user :seats:held set could be out of sync with the actual held seats
+        // This could happen if the user holds a seat, but the hold key is expired before the user reserved the seat.
+        // This can accumulate stale items in the :seats:held set. The below code checks if a lock still exists for the held seat.
+        // The :seats:held set has auto expiration to clear out stale items.
         const userHeldSeats = await redis.sMembers(`${userKey}:seats:held`);
         if (userHeldSeats.length >= seatUserLimit) {
           const trStatus = redis.multi();
@@ -69,36 +73,53 @@ export const handleActionSeat = new Elysia()
           }
         }
 
-        const seatStatus = await redis.get(`${eventKey}:${seatKey}:status`);
-        const [status, ownerId] = seatStatus?.split(':') || ['free', null];
+        // Design note: in a busy system code execution can get past the checks,
+        // but the seat could be held by another user already before the set operation.
+        // To handle this, a simple lock is set on the seat key to prevent concurrent operations.
+        // The lock has a short expiration to handle edge cases where the lock is not released.
+        // The lock is released when the operation is done.
+        // A better approach would be to use a distributed lock manager like Redlock.
+        const lockKey = `${eventKey}:${seatKey}:lock`;
+        const lock = await redis.set(lockKey, 'locked', { EX: 10, NX: true });
+        if (!lock) {
+          return error(409, { error: 'Conflict', message: 'Seat is already being processed' });
+        }
 
-        if (status === 'reserve') {
-          return error(409, { error: 'Conflict', message: 'Seat is already reserved' });
-        }
-        if (status === 'hold' && ownerId !== user.id) {
-          return error(409, { error: 'Conflict', message: 'Seat is held by another user' });
-        }
-        if (status !== 'hold' && body.action === 'reserve') {
-          return error(409, { error: 'Conflict', message: 'Seat is not held by user' });
-        }
+        try {
+          const seatStatus = await redis.get(`${eventKey}:${seatKey}:status`);
+          const [status, ownerId] = seatStatus?.split(':') || ['free', null];
 
-        const tr = redis.multi();
-        switch (body.action) {
-          case 'hold':
-            // Design note: this handles both setting and refreshing the hold
-            tr.set(`${eventKey}:${seatKey}:status`, `hold:${user.id}`, { EX: seatHoldTime });
-            tr.sAdd(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
-            break;
-          case 'reserve':
-            tr.set(`${eventKey}:${seatKey}:status`, `reserve:${user.id}`);
-            tr.sRem(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
-            break;
-        }
-        await tr.exec();
-        await redis.quit();
+          if (status === 'reserve') {
+            return error(409, { error: 'Conflict', message: 'Seat is already reserved' });
+          }
+          if (status === 'hold' && ownerId !== user.id) {
+            return error(409, { error: 'Conflict', message: 'Seat is held by another user' });
+          }
+          if (status !== 'hold' && body.action === 'reserve') {
+            return error(409, { error: 'Conflict', message: 'Seat is not held by user' });
+          }
 
-        set.status = 204;
-        return null;
+          const tr = redis.multi();
+          switch (body.action) {
+            case 'hold':
+              // Design note: this handles both setting and refreshing the hold
+              tr.set(`${eventKey}:${seatKey}:status`, `hold:${user.id}`, { EX: seatHoldTime });
+              tr.sAdd(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
+              // Design note: the :seats:held set has a longer expiration than the :status key to handle stale holds
+              tr.expire(`${userKey}:seats:held`, seatHoldTime * 2);
+              break;
+            case 'reserve':
+              tr.set(`${eventKey}:${seatKey}:status`, `reserve:${user.id}`);
+              tr.sRem(`${userKey}:seats:held`, `${eventKey}:${seatKey}`);
+              break;
+          }
+          await tr.exec();
+          await redis.quit();
+          set.status = 204;
+          return null;
+        } finally {
+          await redis.del(lockKey);
+        }
       } catch (e) {
         console.error(e);
         return error(500, { error: 'Redis set error', message: e });
