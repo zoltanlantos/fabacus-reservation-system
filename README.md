@@ -91,14 +91,51 @@ Biome is an opinionated formatter and defaults to tab indentations and double qu
 
 A considerable disadvantage to using Biome is that it only supports JavaScript, TypeScript, JSX, and JSON files and there are no extensions for other file types like Prettier has.
 
+## System Design
+
+### Architecture Overview
+
+The Fabacus Reservation System is a distributed API built using Node.js, Redis, and Docker. It follows microservices architecture patterns.
+
+The main components of the system are:
+
+- **API Service**: This service handles incoming HTTP requests and serves as the entry point for all API endpoints. It is responsible for authentication, request validation, and routing requests to the appropriate handler. This service manages the creation of events, seat booking, and updating event seat availability.
+- **Database**: The system uses Redis to store ephemeral booking operation data points and to also store persistent data, such as event information and booking details. For a real world application an SQL database such as Postgres could be used to store persistent data that in turn can be cached in Redis.
+
+### Communication and Data Flow
+
+The communication between the different components of the system is based on HTTP requests and responses. When a client makes a request to the API service, it validates the request, performs authentication if required, and provides a response.
+
+### Scalability and High Availability
+
+To ensure scalability and high availability, the system can be deployed using Docker containerization technology. The microservice can be deployed with multiple containers behind a reverse proxy to separate the load for admin and patron endpoints, allowing for easy scaling and fault tolerance. Load balancing can be implemented to distribute incoming requests across multiple instances of the API service.
+
+Redis can be configured in a clustered setup to provide high availability and data replication. This ensures that even if one Redis instance fails, the system can continue to function without data loss.
+
+### Security
+
+The system incorporates security measures to protect sensitive data and prevent unauthorized access. Authentication is required for certain API endpoints, and JWT (JSON Web Tokens) are used for token-based authentication. The JWT secret is securely stored and managed using Docker secrets.
+
+To further enhance security, the system can be deployed behind a reverse proxy with TLS (Transport Layer Security) enabled. This ensures that all communication between clients and the API service is encrypted.
+
+### Monitoring and Logging
+
+Monitoring and logging are essential for maintaining the health and performance of the system. The system can be integrated with monitoring tools such as Prometheus and Grafana to collect and visualize metrics. Logging can be implemented using tools like ELK (Elasticsearch, Logstash, and Kibana) stack to store and analyze logs.
+
+By monitoring metrics and analyzing logs, the system administrators can identify performance bottlenecks, troubleshoot issues, and make informed decisions for optimizing the system.
+
+### Conclusion
+
+The Fabacus Reservation System is designed as a distributed API using Node.js, Redis, and Docker. It follows microservices architecture patterns to ensure scalability, high availability, and maintainability. With its modular design and use of caching, the system can handle a busy online reservation system efficiently.
+
 # TODO
 
-- [ ] documentation
+- [x] documentation
   - [x] add Swagger
   - [x] add design notes
-  - [ ] add system design
+  - [x] add system design
   - [x] add CONTRIBUTING
-  - [ ] finalize README
+  - [x] finalize README
 - [x] set up boilerplate
   - [x] bun
   - [x] biome
@@ -125,3 +162,5 @@ A considerable disadvantage to using Biome is that it only supports JavaScript, 
 - [x] handle CORS
 - [ ] load testing
 - [ ] pen testing
+
+Note: This API implementation is feature complete, the TODO items left unchecked are tasks that would needed to be completed before a production release.
