@@ -114,11 +114,11 @@ export const handleActionSeat = new Elysia()
               break;
           }
           await tr.exec();
-          await redis.quit();
           set.status = 204;
           return null;
         } finally {
           await redis.del(lockKey);
+          await redis.quit();
         }
       } catch (e) {
         console.error(e);
